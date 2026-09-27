@@ -282,6 +282,7 @@ export const MissionControl: React.FC = () => {
               speedrunnerState={speedrunnerState}
               explorerState={explorerState}
               currentRoom={currentRoom || 1}
+              scenarioSeed={seed}
               scenarioName={
                 seed === 108
                   ? "Assassin's Creed: Shadows of the Citadel"
@@ -289,6 +290,10 @@ export const MissionControl: React.FC = () => {
                   ? "GTA VI: Vice City Heist Pursuit"
                   : "OmniForge: 10-Room Dungeon Gauntlet"
               }
+              onGameChange={(newSeed) => {
+                setSeed(newSeed);
+                handleLoadDemoBenchmark(newSeed);
+              }}
             />
 
             {/* 3 Live Agent Terminals */}
@@ -313,6 +318,11 @@ export const MissionControl: React.FC = () => {
               heatmaps={currentAnalytics?.room_heatmaps}
               mostProblematicRoom={currentAnalytics?.most_problematic_room || 6}
               currentRoom={currentRoom}
+              scenarioSeed={seed}
+              onGameChange={(newSeed) => {
+                setSeed(newSeed);
+                handleLoadDemoBenchmark(newSeed);
+              }}
             />
             <EventFeed events={events} />
           </div>
@@ -329,6 +339,11 @@ export const MissionControl: React.FC = () => {
               heatmaps={currentAnalytics?.room_heatmaps}
               mostProblematicRoom={currentAnalytics?.most_problematic_room || 6}
               currentRoom={currentRoom}
+              scenarioSeed={seed}
+              onGameChange={(newSeed) => {
+                setSeed(newSeed);
+                handleLoadDemoBenchmark(newSeed);
+              }}
             />
           </div>
         )}

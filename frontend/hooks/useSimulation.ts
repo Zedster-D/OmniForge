@@ -39,21 +39,25 @@ export function useSimulation() {
       const runs = await listRuns();
       if (runs && runs.length > 0) {
         setRunsList(runs);
-        const details = await fetchRunDetails(runs[0].id);
+        // Find run matching current seed if possible
+        const matchingRun = runs.find((r) => r.seed === seed) || runs[0];
+        const details = await fetchRunDetails(matchingRun.id);
         setRunDetails(details);
         setActiveRun(details.run);
         setStatus(details.run.status);
+        if (details.run.seed) {
+          setSeed(details.run.seed);
+        }
       }
       setError(null);
     } catch (e) {
       console.warn('Using client benchmark dataset while server initializes:', e);
     }
-  }, []);
+  }, [seed]);
 
   useEffect(() => {
     refreshHealth();
-    refreshRuns();
-  }, [refreshHealth, refreshRuns]);
+  }, [refreshHealth]);
 
   const handleCreateNewRun = async (customSeed?: number) => {
     setLoading(true);
@@ -121,6 +125,9 @@ export function useSimulation() {
       setRunDetails(details);
       setActiveRun(details.run);
       setStatus(details.run.status);
+      if (details.run.seed) {
+        setSeed(details.run.seed);
+      }
     } catch (err: any) {
       setError(err.message || 'Failed to fetch run details');
     } finally {
@@ -131,7 +138,9 @@ export function useSimulation() {
   const handleLoadDemoBenchmark = async (targetSeed?: number) => {
     setLoading(true);
     setError(null);
-    const activeSeed = targetSeed ?? seed;
+    const activeSeed = targetSeed !== undefined ? targetSeed : seed;
+    setSeed(activeSeed);
+
     const targetRunId =
       activeSeed === 777
         ? 'run-demo-gta-vice-heist'
@@ -146,20 +155,25 @@ export function useSimulation() {
         ? FALLBACK_BENCHMARK_DATA
         : ASSASSINS_CREED_BENCHMARK;
 
+    // Immediately load client dataset for instant zero-lag UI response
+    setRunDetails(fallbackDataset);
+    setActiveRun(fallbackDataset.run);
+    setStatus(fallbackDataset.run.status);
+
     try {
       await seedMockData();
-      await refreshRuns();
       const details = await fetchRunDetails(targetRunId);
-      setRunDetails(details);
-      setActiveRun(details.run);
-      setStatus(details.run.status);
+      if (details && details.run) {
+        setRunDetails(details);
+        setActiveRun(details.run);
+        setStatus(details.run.status);
+      }
+      const runs = await listRuns();
+      if (runs && runs.length > 0) {
+        setRunsList(runs);
+      }
     } catch (err: any) {
-      console.warn(`Loading client fallback benchmark dataset for ${targetRunId}:`, err);
-      setRunDetails(fallbackDataset);
-      setActiveRun(fallbackDataset.run);
-      setStatus(fallbackDataset.run.status);
-      setRunsList([ASSASSINS_CREED_BENCHMARK.run, GTA_HEIST_BENCHMARK.run]);
-      setError(null);
+      console.warn(`Using instant client benchmark dataset for seed ${activeSeed}:`, err);
     } finally {
       setLoading(false);
     }
