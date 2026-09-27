@@ -29,6 +29,7 @@ import {
   Info,
 } from 'lucide-react';
 import { AboutModal } from './AboutModal';
+import { VisualGameArena } from './VisualGameArena';
 
 export const MissionControl: React.FC = () => {
   const {
@@ -135,8 +136,8 @@ export const MissionControl: React.FC = () => {
 
       {/* Main Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-        {/* Error Alert */}
-        {error && (
+        {/* Error Alert (Only if no active dataset available) */}
+        {error && !activeRun && !runDetails && (
           <div className="p-3 rounded-xl bg-red-950/60 border border-red-500 text-red-300 font-mono text-xs flex items-center gap-2">
             <ShieldAlert className="w-4 h-4 text-red-400 shrink-0" />
             <span>{error}</span>
@@ -275,6 +276,21 @@ export const MissionControl: React.FC = () => {
         {/* Tab 1: Live Simulation */}
         {activeTab === 'LIVE' && (
           <div className="space-y-6">
+            {/* Interactive 2D Visual Game Arena (Play / Watch Simulator) */}
+            <VisualGameArena
+              casualState={casualState}
+              speedrunnerState={speedrunnerState}
+              explorerState={explorerState}
+              currentRoom={currentRoom || 1}
+              scenarioName={
+                seed === 108
+                  ? "Assassin's Creed: Shadows of the Citadel"
+                  : seed === 777
+                  ? "GTA VI: Vice City Heist Pursuit"
+                  : "OmniForge: 10-Room Dungeon Gauntlet"
+              }
+            />
+
             {/* 3 Live Agent Terminals */}
             <AgentGrid
               casualState={casualState}
