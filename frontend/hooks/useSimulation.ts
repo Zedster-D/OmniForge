@@ -3,23 +3,22 @@
 import { useState, useEffect, useCallback } from 'react';
 import { SimulationRun, RunDetailResponse, AIMode, SimulationStatus } from '../lib/types';
 import { fetchHealth, createRun, startRun, stopRun, replayRun, fetchRunDetails, listRuns, seedMockData } from '../lib/api';
-import { FALLBACK_BENCHMARK_DATA } from '../lib/benchmarkData';
+import { ASSASSINS_CREED_BENCHMARK, GTA_HEIST_BENCHMARK, FALLBACK_BENCHMARK_DATA } from '../lib/benchmarkData';
 
 export const DEMO_PRESETS = [
-  { name: 'Default Swarm Gauntlet', seed: 42, description: 'Standard 10-room scenario balancing combat, traps, and secrets.' },
-  { name: 'Infernal Crucible (Lethal Spikes)', seed: 108, description: 'High hazard density, high-damage Room 6 combat friction.' },
-  { name: 'Speedrunner Labyrinth (Shortcuts)', seed: 777, description: 'High bypass route availability across mid-tier rooms.' },
-  { name: 'Explorer Alcove (Lore Heavy)', seed: 999, description: 'Multiple hidden side chambers, relic caches, and puzzles.' },
+  { name: "Assassin's Creed: Shadows of the Citadel", seed: 108, description: 'Stealth, parkour rooftop snipers, and Animus synchronization.' },
+  { name: 'GTA VI: Vice City Heist Pursuit', seed: 777, description: 'Bank infiltration, 4-star freeway police chase, and getaway stunts.' },
+  { name: 'OmniForge: Dungeon Gauntlet', seed: 42, description: 'Standard 10-room combat, puzzle, and hazard dungeon.' },
 ];
 
 export function useSimulation() {
-  const [activeRun, setActiveRun] = useState<SimulationRun | null>(FALLBACK_BENCHMARK_DATA.run);
-  const [runsList, setRunsList] = useState<SimulationRun[]>([FALLBACK_BENCHMARK_DATA.run]);
+  const [activeRun, setActiveRun] = useState<SimulationRun | null>(ASSASSINS_CREED_BENCHMARK.run);
+  const [runsList, setRunsList] = useState<SimulationRun[]>([ASSASSINS_CREED_BENCHMARK.run, GTA_HEIST_BENCHMARK.run]);
   const [status, setStatus] = useState<SimulationStatus>('completed');
   const [aiMode, setAiMode] = useState<AIMode>('LOCAL DEMO');
-  const [seed, setSeed] = useState<number>(42);
+  const [seed, setSeed] = useState<number>(108);
   const [speedMultiplier, setSpeedMultiplier] = useState<number>(1.0);
-  const [runDetails, setRunDetails] = useState<RunDetailResponse | null>(FALLBACK_BENCHMARK_DATA);
+  const [runDetails, setRunDetails] = useState<RunDetailResponse | null>(ASSASSINS_CREED_BENCHMARK);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -129,22 +128,37 @@ export function useSimulation() {
     }
   };
 
-  const handleLoadDemoBenchmark = async () => {
+  const handleLoadDemoBenchmark = async (targetSeed?: number) => {
     setLoading(true);
     setError(null);
+    const activeSeed = targetSeed ?? seed;
+    const targetRunId =
+      activeSeed === 777
+        ? 'run-demo-gta-vice-heist'
+        : activeSeed === 42
+        ? 'run-demo-benchmark-01'
+        : 'run-demo-assassins-creed';
+
+    const fallbackDataset =
+      activeSeed === 777
+        ? GTA_HEIST_BENCHMARK
+        : activeSeed === 42
+        ? FALLBACK_BENCHMARK_DATA
+        : ASSASSINS_CREED_BENCHMARK;
+
     try {
       await seedMockData();
       await refreshRuns();
-      const details = await fetchRunDetails('run-demo-benchmark-01');
+      const details = await fetchRunDetails(targetRunId);
       setRunDetails(details);
       setActiveRun(details.run);
       setStatus(details.run.status);
     } catch (err: any) {
-      console.warn('Loading client benchmark dataset directly into dashboard:', err);
-      setRunDetails(FALLBACK_BENCHMARK_DATA);
-      setActiveRun(FALLBACK_BENCHMARK_DATA.run);
-      setStatus(FALLBACK_BENCHMARK_DATA.run.status);
-      setRunsList((prev) => (prev.length > 0 ? prev : [FALLBACK_BENCHMARK_DATA.run]));
+      console.warn(`Loading client fallback benchmark dataset for ${targetRunId}:`, err);
+      setRunDetails(fallbackDataset);
+      setActiveRun(fallbackDataset.run);
+      setStatus(fallbackDataset.run.status);
+      setRunsList([ASSASSINS_CREED_BENCHMARK.run, GTA_HEIST_BENCHMARK.run]);
       setError(null);
     } finally {
       setLoading(false);

@@ -17,7 +17,7 @@ interface SimulationControlsProps {
   onStop: () => void;
   onReplay: () => void;
   onOpenDirectorModal: () => void;
-  onLoadBenchmark?: () => void;
+  onLoadBenchmark?: (seed?: number) => void;
   hasReport: boolean;
   loading: boolean;
 }
@@ -65,14 +65,20 @@ export const SimulationControls: React.FC<SimulationControlsProps> = ({
           {/* Preset Selector */}
           <div className="relative">
             <select
-              className="bg-slate-900/90 border border-slate-700/80 text-slate-200 text-xs font-mono rounded-lg px-3 py-1.5 focus:outline-none focus:border-cyan-500 cursor-pointer"
+              className="bg-slate-900/90 border border-slate-700/80 text-cyan-300 text-xs font-mono font-semibold rounded-lg px-3 py-1.5 focus:outline-none focus:border-cyan-500 cursor-pointer shadow-[0_0_10px_rgba(6,182,212,0.15)]"
               value={seed}
-              onChange={(e) => onSeedChange(Number(e.target.value))}
+              onChange={(e) => {
+                const newSeed = Number(e.target.value);
+                onSeedChange(newSeed);
+                if (onLoadBenchmark) {
+                  onLoadBenchmark(newSeed);
+                }
+              }}
               disabled={isRunning}
             >
               {DEMO_PRESETS.map((p) => (
                 <option key={p.seed} value={p.seed}>
-                  {p.name} (Seed {p.seed})
+                  🎮 {p.name}
                 </option>
               ))}
             </select>
@@ -130,7 +136,7 @@ export const SimulationControls: React.FC<SimulationControlsProps> = ({
 
           {onLoadBenchmark && (
             <button
-              onClick={onLoadBenchmark}
+              onClick={() => onLoadBenchmark(seed)}
               disabled={isRunning || loading}
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-cyan-950/40 border border-cyan-500/50 hover:bg-cyan-900/50 text-cyan-300 font-mono font-semibold text-xs transition-all cursor-pointer shadow-[0_0_12px_rgba(6,182,212,0.2)]"
               title="Load pre-generated QA benchmark dataset with full Director audit and balance patch"
