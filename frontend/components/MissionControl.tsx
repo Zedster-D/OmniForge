@@ -26,7 +26,9 @@ import {
   Grid,
   Radio,
   GitBranch,
+  Info,
 } from 'lucide-react';
+import { AboutModal } from './AboutModal';
 
 export const MissionControl: React.FC = () => {
   const {
@@ -64,6 +66,7 @@ export const MissionControl: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState<'LIVE' | 'HEATMAP' | 'RADAR' | 'DIRECTOR' | 'HISTORY'>('LIVE');
   const [showDirectorModal, setShowDirectorModal] = useState(false);
+  const [showAboutModal, setShowAboutModal] = useState(false);
 
   // Compute live KPI summaries
   const avgFrust = Math.round(
@@ -109,6 +112,14 @@ export const MissionControl: React.FC = () => {
               <span className="font-bold text-slate-200 uppercase">{status}</span>
             </div>
 
+            <button
+              onClick={() => setShowAboutModal(true)}
+              className="p-2 rounded-lg bg-slate-900 border border-slate-800 text-cyan-400 hover:text-cyan-300 hover:border-cyan-500/50 transition-all flex items-center gap-1 font-mono text-xs cursor-pointer"
+            >
+              <Info className="w-4 h-4" />
+              <span>WHAT IS THIS?</span>
+            </button>
+
             <a
               href="https://github.com"
               target="_blank"
@@ -153,7 +164,7 @@ export const MissionControl: React.FC = () => {
           <MetricCard
             title="GAME HEALTH SCORE"
             value={`${gameHealth}/100`}
-            subValue="Heuristic"
+            subValue="Overall Level Quality"
             icon={Activity}
             color={gameHealth >= 80 ? 'emerald' : gameHealth >= 60 ? 'amber' : 'red'}
             isProblem={gameHealth < 60}
@@ -161,14 +172,14 @@ export const MissionControl: React.FC = () => {
           <MetricCard
             title="AVG FRUSTRATION"
             value={`${avgFrust}%`}
-            subValue="Swarm Avg"
+            subValue="Average AI Annoyance"
             icon={Flame}
             color={avgFrust > 50 ? 'amber' : 'cyan'}
           />
           <MetricCard
             title="PEAK FRUSTRATION"
             value={`${peakFrust}%`}
-            subValue="Single Agent"
+            subValue="Highest AI Annoyance"
             icon={Flame}
             color={peakFrust >= 70 ? 'red' : 'purple'}
             isProblem={peakFrust >= 80}
@@ -190,7 +201,7 @@ export const MissionControl: React.FC = () => {
           <MetricCard
             title="TOTAL FAILURES"
             value={totalFails}
-            subValue="Action Rejections"
+            subValue="Failed Game Actions"
             icon={ShieldAlert}
             color="cyan"
           />
@@ -392,6 +403,9 @@ export const MissionControl: React.FC = () => {
             </div>
           </div>
         )}
+
+        {/* Modal: About / Info */}
+        {showAboutModal && <AboutModal onClose={() => setShowAboutModal(false)} />}
       </main>
 
       {/* Footer */}

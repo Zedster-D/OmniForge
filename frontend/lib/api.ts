@@ -1,6 +1,15 @@
 import { SimulationRun, RunDetailResponse, DirectorReport, BalancePatch } from './types';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+function getApiBaseUrl(): string {
+  const envUrl = process.env.NEXT_PUBLIC_API_URL;
+  if (!envUrl) return 'http://localhost:8000';
+  if (envUrl.startsWith('http://') || envUrl.startsWith('https://')) {
+    return envUrl.replace(/\/+$/, '');
+  }
+  return `https://${envUrl.replace(/\/+$/, '')}`;
+}
+
+const API_BASE_URL = getApiBaseUrl();
 
 export async function fetchHealth(): Promise<{ status: string; ai_mode: string; version: string }> {
   const res = await fetch(`${API_BASE_URL}/api/health`);

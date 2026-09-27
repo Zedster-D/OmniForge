@@ -1,6 +1,21 @@
 import { TelemetryEvent } from './types';
 
-const WS_BASE_URL = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8000';
+function getWsBaseUrl(): string {
+  const envWs = process.env.NEXT_PUBLIC_WS_URL || process.env.NEXT_PUBLIC_API_URL;
+  if (!envWs) return 'ws://localhost:8000';
+  if (envWs.startsWith('wss://') || envWs.startsWith('ws://')) {
+    return envWs.replace(/\/+$/, '');
+  }
+  if (envWs.startsWith('https://')) {
+    return envWs.replace(/^https:\/\//, 'wss://').replace(/\/+$/, '');
+  }
+  if (envWs.startsWith('http://')) {
+    return envWs.replace(/^http:\/\//, 'ws://').replace(/\/+$/, '');
+  }
+  return `wss://${envWs.replace(/\/+$/, '')}`;
+}
+
+const WS_BASE_URL = getWsBaseUrl();
 
 export class SimulationWebSocket {
   private ws: WebSocket | null = null;
