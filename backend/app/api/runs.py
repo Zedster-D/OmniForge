@@ -78,3 +78,10 @@ async def get_run_patch(run_id: str):
     if not patch:
         raise HTTPException(status_code=404, detail=f"Balance patch for run '{run_id}' not found")
     return patch
+
+@router.post("/seed/mock", response_model=Dict[str, Any])
+async def seed_mock_data():
+    from backend.app.memory.mock_seeder import seed_mock_datasets
+    await seed_mock_datasets(repo, force=True)
+    runs = await repo.list_runs(limit=10)
+    return {"status": "success", "message": "Mock benchmark dataset seeded", "runs": runs}

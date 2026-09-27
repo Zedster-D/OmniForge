@@ -81,3 +81,12 @@ export async function fetchBalancePatch(runId: string): Promise<BalancePatch> {
   if (!res.ok) throw new Error('Balance patch not available yet');
   return res.json();
 }
+
+export async function seedMockData(): Promise<any> {
+  const res = await fetch(`${API_BASE_URL}/api/runs/seed/mock`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  if (!res.ok) throw new Error('Failed to seed mock datasets');
+  return res.json();
+}

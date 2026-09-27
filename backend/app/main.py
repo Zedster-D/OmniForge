@@ -12,6 +12,11 @@ from backend.app.core.logging import logger
 async def lifespan(app: FastAPI):
     logger.info("Initializing OmniForge backend systems...")
     await repo.initialize()
+    try:
+        from backend.app.memory.mock_seeder import seed_mock_datasets
+        await seed_mock_datasets(repo)
+    except Exception as e:
+        logger.warning(f"Failed to auto-seed mock datasets: {e}")
     yield
     logger.info("Shutting down OmniForge backend systems...")
 

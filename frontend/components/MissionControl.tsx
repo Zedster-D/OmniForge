@@ -46,6 +46,7 @@ export const MissionControl: React.FC = () => {
     handleStart,
     handleStop,
     handleReplay,
+    handleLoadDemoBenchmark,
     loadRunDetails,
   } = useSimulation();
 
@@ -155,6 +156,7 @@ export const MissionControl: React.FC = () => {
           onStop={handleStop}
           onReplay={() => handleReplay()}
           onOpenDirectorModal={() => setShowDirectorModal(true)}
+          onLoadBenchmark={handleLoadDemoBenchmark}
           hasReport={!!currentReport}
           loading={loading}
         />

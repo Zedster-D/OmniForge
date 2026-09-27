@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { SimulationRun, RunDetailResponse, AIMode, SimulationStatus } from '../lib/types';
-import { fetchHealth, createRun, startRun, stopRun, replayRun, fetchRunDetails, listRuns } from '../lib/api';
+import { fetchHealth, createRun, startRun, stopRun, replayRun, fetchRunDetails, listRuns, seedMockData } from '../lib/api';
 
 export const DEMO_PRESETS = [
   { name: 'Default Swarm Gauntlet', seed: 42, description: 'Standard 10-room scenario balancing combat, traps, and secrets.' },
@@ -37,10 +37,21 @@ export function useSimulation() {
     try {
       const runs = await listRuns();
       setRunsList(runs);
+      if (runs.length > 0 && !activeRun) {
+        // Automatically load the latest benchmark run details
+        try {
+          const details = await fetchRunDetails(runs[0].id);
+          setRunDetails(details);
+          setActiveRun(details.run);
+          setStatus(details.run.status);
+        } catch (err) {
+          console.warn('Could not auto-load run details', err);
+        }
+      }
     } catch (e) {
       console.error('Failed to load runs:', e);
     }
-  }, []);
+  }, [activeRun]);
 
   useEffect(() => {
     refreshHealth();
@@ -120,6 +131,23 @@ export function useSimulation() {
     }
   };
 
+  const handleLoadDemoBenchmark = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      await seedMockData();
+      await refreshRuns();
+      const details = await fetchRunDetails('run-demo-benchmark-01');
+      setRunDetails(details);
+      setActiveRun(details.run);
+      setStatus(details.run.status);
+    } catch (err: any) {
+      setError(err.message || 'Failed to load demo benchmark');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     activeRun,
     runsList,
@@ -137,6 +165,7 @@ export function useSimulation() {
     handleStart,
     handleStop,
     handleReplay,
+    handleLoadDemoBenchmark,
     loadRunDetails,
     refreshRuns
   };

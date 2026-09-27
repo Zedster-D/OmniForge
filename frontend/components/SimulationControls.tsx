@@ -17,6 +17,7 @@ interface SimulationControlsProps {
   onStop: () => void;
   onReplay: () => void;
   onOpenDirectorModal: () => void;
+  onLoadBenchmark?: () => void;
   hasReport: boolean;
   loading: boolean;
 }
@@ -33,6 +34,7 @@ export const SimulationControls: React.FC<SimulationControlsProps> = ({
   onStop,
   onReplay,
   onOpenDirectorModal,
+  onLoadBenchmark,
   hasReport,
   loading,
 }) => {
@@ -125,6 +127,18 @@ export const SimulationControls: React.FC<SimulationControlsProps> = ({
             <RotateCcw className="w-4 h-4" />
             <span>REPLAY</span>
           </button>
+
+          {onLoadBenchmark && (
+            <button
+              onClick={onLoadBenchmark}
+              disabled={isRunning || loading}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-cyan-950/40 border border-cyan-500/50 hover:bg-cyan-900/50 text-cyan-300 font-mono font-semibold text-xs transition-all cursor-pointer shadow-[0_0_12px_rgba(6,182,212,0.2)]"
+              title="Load pre-generated QA benchmark dataset with full Director audit and balance patch"
+            >
+              <Sparkles className="w-4 h-4 text-cyan-400" />
+              <span>LOAD BENCHMARK</span>
+            </button>
+          )}
 
           {hasReport && (
             <button
