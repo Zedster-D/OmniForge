@@ -2,11 +2,20 @@ import { SimulationRun, RunDetailResponse, DirectorReport, BalancePatch } from '
 
 function getApiBaseUrl(): string {
   const envUrl = process.env.NEXT_PUBLIC_API_URL;
-  if (!envUrl) return 'http://localhost:8000';
-  if (envUrl.startsWith('http://') || envUrl.startsWith('https://')) {
+  if (envUrl && (envUrl.startsWith('http://') || envUrl.startsWith('https://'))) {
     return envUrl.replace(/\/+$/, '');
   }
-  return `https://${envUrl.replace(/\/+$/, '')}`;
+  if (envUrl && envUrl.trim().length > 0) {
+    return `https://${envUrl.replace(/\/+$/, '')}`;
+  }
+  // Dynamic browser detection for Render vs Localhost
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname;
+    if (host.includes('onrender.com')) {
+      return 'https://omniforge-backend.onrender.com';
+    }
+  }
+  return 'http://localhost:8000';
 }
 
 const API_BASE_URL = getApiBaseUrl();

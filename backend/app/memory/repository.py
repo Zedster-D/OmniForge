@@ -116,7 +116,7 @@ class DatabaseRepository:
         created_at = datetime.utcnow().isoformat() + "Z"
         async with aiosqlite.connect(self.db_path) as db:
             await db.execute(
-                "INSERT INTO runs (id, seed, ai_mode, status, created_at) VALUES (?, ?, ?, ?, ?)",
+                "INSERT OR REPLACE INTO runs (id, seed, ai_mode, status, created_at) VALUES (?, ?, ?, ?, ?)",
                 (run_id, seed, ai_mode, "created", created_at)
             )
             await db.commit()

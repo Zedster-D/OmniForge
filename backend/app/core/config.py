@@ -21,15 +21,19 @@ class Settings(BaseSettings):
     # Database
     DATABASE_PATH: str = str(DATA_DIR / "omniforge.db")
     
-    # CORS Security
+    # CORS Security & Interoperability
     CORS_ORIGINS: list[str] = [
         "http://localhost:3000",
-        "http://127.0.0.1:3000",
+        "http://localhost:3001",
+        "http://localhost:3002",
         "http://localhost:8000",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:3001",
+        "http://127.0.0.1:3002",
         "http://127.0.0.1:8000",
         "https://omniforge-frontend.onrender.com",
     ]
-    CORS_ORIGIN_REGEX: str = r"https://.*\.onrender\.com"
+    CORS_ORIGIN_REGEX: str = r"https?://(localhost|127\.0\.0\.1)(:[0-9]+)?|https://.*\.onrender\.com|https://.*\.vercel\.app"
 
     class Config:
         env_file = ".env"

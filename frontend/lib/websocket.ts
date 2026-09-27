@@ -2,17 +2,26 @@ import { TelemetryEvent } from './types';
 
 function getWsBaseUrl(): string {
   const envWs = process.env.NEXT_PUBLIC_WS_URL || process.env.NEXT_PUBLIC_API_URL;
-  if (!envWs) return 'ws://localhost:8000';
-  if (envWs.startsWith('wss://') || envWs.startsWith('ws://')) {
+  if (envWs && (envWs.startsWith('wss://') || envWs.startsWith('ws://'))) {
     return envWs.replace(/\/+$/, '');
   }
-  if (envWs.startsWith('https://')) {
+  if (envWs && envWs.startsWith('https://')) {
     return envWs.replace(/^https:\/\//, 'wss://').replace(/\/+$/, '');
   }
-  if (envWs.startsWith('http://')) {
+  if (envWs && envWs.startsWith('http://')) {
     return envWs.replace(/^http:\/\//, 'ws://').replace(/\/+$/, '');
   }
-  return `wss://${envWs.replace(/\/+$/, '')}`;
+  if (envWs && envWs.trim().length > 0) {
+    return `wss://${envWs.replace(/\/+$/, '')}`;
+  }
+  // Dynamic browser detection for Render vs Localhost
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname;
+    if (host.includes('onrender.com')) {
+      return 'wss://omniforge-backend.onrender.com';
+    }
+  }
+  return 'ws://localhost:8000';
 }
 
 const WS_BASE_URL = getWsBaseUrl();
