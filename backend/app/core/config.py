@@ -21,14 +21,15 @@ class Settings(BaseSettings):
     # Database
     DATABASE_PATH: str = str(DATA_DIR / "omniforge.db")
     
-    # CORS
+    # CORS Security
     CORS_ORIGINS: list[str] = [
         "http://localhost:3000",
         "http://127.0.0.1:3000",
         "http://localhost:8000",
         "http://127.0.0.1:8000",
-        "*"
+        "https://omniforge-frontend.onrender.com",
     ]
+    CORS_ORIGIN_REGEX: str = r"https://.*\.onrender\.com"
 
     class Config:
         env_file = ".env"
